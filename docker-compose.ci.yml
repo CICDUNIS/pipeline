@@ -18,8 +18,7 @@ services:
       - DRONE_SERVER_PROTO=https
 
       - DRONE_USER_CREATE=username:JA-FY,admin:true
-      - DRONE_GITHUB_STATUS_CONTEXT=ci/drone/pr
-
+      - DRONE_GITHUB_CONTEXT=ci/drone/pr
   drone-runner:
     image: drone/drone-runner-docker:1
     container_name: drone-runner
