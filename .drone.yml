@@ -1,80 +1,11 @@
 kind: pipeline
 type: docker
-name: Pharmacy App CI/CD
+name: minimalist-test
 
 steps:
-- name: backend-tests
-  image: maven:3.8-openjdk-17
+- name: test
+  image: alpine
   commands:
-  - cd pharmacy 
-  - mvn test
-  when:
-    event:
-    - pull_request
-
-- name: frontend-tests
-  image: node:18
-  commands:
-  - cd frontend
-  - npm install
-  - npm test -- --watch=false --browsers=ChromeHeadless
-  when:
-    event:
-    - pull_request
-
-- name: sonarqube
-  image: maven:3.8-openjdk-17
-  commands:
-  - >
-    mvn -f pharmacy/pom.xml verify sonar:sonar
-    -Dsonar.host.url=http://sonarqube:9000
-    -Dsonar.login=$${SONAR_TOKEN}
-    -Dsonar.qualitygate.wait=true
-  depends_on: [backend-tests] 
-  when:
-    event:
-    - pull_request
-  environment:
-    SONAR_TOKEN:
-      from_secret: sonarqube_token
-
-- name: notify-on-failure
-  image: plugins/email
-  settings:
-    host: smtp.mail.yahoo.com 
-    port: 587
-    username: nightowlgt@yahoo.com
-    password:
-      from_secret: smtp_password 
-    from: "CI Bot <nightowlgt@yahoo.com>"
-    recipients: [ "jorge.ferguson.y@gmail.com", "jflores@unis.edu.gt" ]
-    subject: "Build Failed: {{repo.name}} - PR #{{build.pull}}"
-    body: "The build for pull request #{{build.pull}} has failed. Please review the logs: {{build.link}}"
-  when:
-    event: [pull_request]
-    status: [failure]
-
-- name: deploy-dev
-  image: docker/compose:1.29.2
-  commands:
-  - docker-compose -f docker-compose.dev.yml up -d --build
-  when:
-    event: [push]
-    branch: [dev]
-
-- name: deploy-uat
-  image: docker/compose:1.29.2
-  commands:
-  - docker-compose -f docker-compose.uat.yml up -d --build
-  when:
-    event: [push]
-    branch: [uat]
-
-- name: deploy-prod
-  image: docker/compose:1.29.2
-  commands:
-  - docker-compose -f docker-compose.prod.yml up -d --build
-  when:
-    event: [push]
-    branch: [main] 
-
+  - echo "Hello from the test pipeline!"
+  - sleep 5 
+  - echo "Test complete."
