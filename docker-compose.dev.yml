@@ -1,0 +1,19 @@
+services:
+  pharmacy-backend-dev:
+    build: ./pharmacy
+    container_name: pharmacy-backend-dev
+    env_file: .env.dev
+    networks:
+      - pipeline_ci-net 
+
+  pharmacy-frontend-dev:
+    build: ./frontend
+    container_name: pharmacy-frontend-dev
+    ports:
+      - "4300:80" 
+    networks:
+      - pipeline_ci-net
+
+networks:
+  pipeline_ci-net:
+    external: true 

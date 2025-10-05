@@ -1,0 +1,19 @@
+services:
+  pharmacy-backend-uat:
+    build: ./pharmacy
+    container_name: pharmacy-backend-uat
+    env_file: .env.uat
+    networks:
+      - pipeline_ci-net
+
+  pharmacy-frontend-uat:
+    build: ./frontend
+    container_name: pharmacy-frontend-uat
+    ports:
+      - "4400:80" 
+    networks:
+      - pipeline_ci-net
+
+networks:
+  pipeline_ci-net:
+    external: true

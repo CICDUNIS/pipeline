@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  drone-server:
+    image: drone/drone:2
+    container_name: drone-server
+    ports:
+      - "8000:80" 
+    volumes:
+      - drone-data:/data
+    networks:
+      - ci-net
+    environment:
+      - DRONE_GITHUB_CLIENT_ID=${DRONE_GITHUB_CLIENT_ID}
+      - DRONE_GITHUB_CLIENT_SECRET=${DRONE_GITHUB_CLIENT_SECRET}
+      - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
+      - DRONE_SERVER_HOST=${DRONE_SERVER_HOST}
+      - DRONE_SERVER_PROTO=https
+
+      - DRONE_USER_CREATE=username:JA-FY,admin:true
+      - DRONE_GITHUB_STATUS_CONTEXT=ci/drone/pr
+
+  drone-runner:
+    image: drone/drone-runner-docker:1
+    container_name: drone-runner
+    restart: always
+    depends_on:
+      - drone-server
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - ci-net
+    environment:
+      - DRONE_RPC_PROTO=http
+      - DRONE_RPC_HOST=drone-server 
+      - DRONE_RPC_SECRET=${DRONE_RPC_SECRET} 
+      - DRONE_RUNNER_CAPACITY=2
+      - DRONE_RUNNER_NAME=apple-silicon-runner
+
+  sonarqube:
+    image: sonarqube:latest
+    container_name: sonarqube
+    ports:
+      - "9000:9000"
+    networks:
+      - ci-net
+    environment:
+      - sonar.jdbc.username=sonar
+      - sonar.jdbc.password=sonar
+      - sonar.jdbc.url=jdbc:postgresql://sonarqube-db:5432/sonar
+    volumes:
+      - sonarqube-conf:/opt/sonarqube/conf
+      - sonarqube-data:/opt/sonarqube/data
+      - sonarqube-logs:/opt/sonarqube/logs
+      - sonarqube-extensions:/opt/sonarqube/extensions
+
+  sonarqube-db:
+    image: postgres:13
+    container_name: sonarqube-db
+    networks:
+      - ci-net
+    environment:
+      - POSTGRES_USER=sonar
+      - POSTGRES_PASSWORD=sonar
+      - POSTGRES_DB=sonar
+    volumes:
+      - sonarqube-db-data:/var/lib/postgresql/data
+
+  oracle-db:
+    image: gvenzl/oracle-free:latest 
+    container_name: oracle-db-shared
+    ports:
+      - "1523:1521"
+    networks:
+      - ci-net
+    environment:
+      - ORACLE_PASSWORD=YourSecureOraclePassword1 
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+      - ./db-scripts:/docker-entrypoint-initdb.d
+
+volumes:
+  drone-data:
+  sonarqube-conf:
+  sonarqube-data:
+  sonarqube-logs:
+  sonarqube-extensions:
+  sonarqube-db-data:
+  oracle-data:
+
+networks:
+  ci-net:
