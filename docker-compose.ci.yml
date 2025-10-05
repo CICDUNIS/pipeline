@@ -35,6 +35,7 @@ services:
       - DRONE_RPC_SECRET=${DRONE_RPC_SECRET} 
       - DRONE_RUNNER_CAPACITY=2
       - DRONE_RUNNER_NAME=apple-silicon-runner
+      - DRONE_LOG_LEVEL=debug
 
   sonarqube:
     image: sonarqube:latest
