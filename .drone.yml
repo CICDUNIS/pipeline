@@ -58,8 +58,6 @@ steps:
   image: docker/compose:1.29.2
   commands:
   - docker-compose -f docker-compose.dev.yml up -d --build
-  volumes:
-  - /var/run/docker.sock:/var/run/docker.sock
   when:
     event: [push]
     branch: [dev]
@@ -68,8 +66,6 @@ steps:
   image: docker/compose:1.29.2
   commands:
   - docker-compose -f docker-compose.uat.yml up -d --build
-  volumes:
-  - /var/run/docker.sock:/var/run/docker.sock
   when:
     event: [push]
     branch: [uat]
@@ -78,8 +74,6 @@ steps:
   image: docker/compose:1.29.2
   commands:
   - docker-compose -f docker-compose.prod.yml up -d --build
-  volumes:
-  - /var/run/docker.sock:/var/run/docker.sock
   when:
     event: [push]
     branch: [main] 
